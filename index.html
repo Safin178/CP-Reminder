@@ -131,9 +131,12 @@
         }
 
         // Format date in BDT (Bangladesh Time)
-        function formatDate(date) {
+       function formatDate(utcDateStr) {
+            // Parse the UTC date string without local time conversion
+            const date = new Date(utcDateStr + "Z"); // The 'Z' ensures it's treated as UTC
+
             const options = {
-                timeZone: 'Asia/Dhaka',  // Dhaka timezone (UTC+6)
+                timeZone: 'Asia/Dhaka',  // Convert UTC to BDT
                 hour12: true,
                 month: 'short',
                 day: 'numeric',
@@ -141,8 +144,9 @@
                 hour: '2-digit',
                 minute: '2-digit'
             };
-            return new Date(date).toLocaleString('en-GB', options) + ' BDT';
+            return date.toLocaleString('en-GB', options) + ' BDT';
         }
+
 
         async function fetchContest(platformKey, divId, subDivId) {
             const resourceId = platforms[platformKey];
