@@ -79,37 +79,126 @@
             margin-bottom: 20px;
             text-align: center;
         }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+            }
+
+            .contest-card {
+                padding: 12px;
+                font-size: 15px;
+                max-width: 98vw;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .btn-copy {
+                font-size: 15px;
+                padding: 10px 0;
+            }
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #181a20;
+            color: #e0e6ed;
+        }
+
+        body.dark-mode .contest-card {
+            background: #23272f;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode h1 {
+            color: #e0e6ed;
+        }
+
+        body.dark-mode .contest-header {
+            color: #90caf9;
+        }
+
+        body.dark-mode .btn-copy {
+            background-color: #388e3c;
+            color: #fff;
+        }
+
+        body.dark-mode .btn-copy:hover {
+            background-color: #2c6e2a;
+        }
+
+        body.dark-mode .notification {
+            color: #ffb4a2;
+        }
+
+        /* Platform Logo Styles */
+        .platform-logo {
+            height: 28px;
+            width: 28px;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 6px;
+            background: #fff;
+            object-fit: contain;
+        }
+
+        .contest-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Dark Mode Toggle Button -->
+    <button id="toggle-dark"
+        style="margin-bottom:18px; padding:8px 18px; border-radius:8px; border:none; background:#333; color:#fff; font-weight:600; cursor:pointer;">
+        Toggle Dark Mode
+    </button>
 
     <h1>Next Upcoming Contests</h1>
     <div id="notification" class="notification"></div>
 
     <div id="cf" class="contest-card">
-        <div class="contest-header">Codeforces</div>
+        <div class="contest-header">
+            <img src="https://sta.codeforces.com/s/84849/images/codeforces-logo-with-telegram.png" alt="Codeforces"
+                class="platform-logo">
+            Codeforces
+        </div>
         <div class="contest-subheader" id="cf-sub">Round / Div info</div>
         <div class="contest-info" id="cf-info">Loading...</div>
         <button class="btn-copy" onclick="copyText('cf-info')">Copy Contest Info</button>
     </div>
 
     <div id="cc" class="contest-card">
-        <div class="contest-header">CodeChef</div>
+        <div class="contest-header">
+            <img src="https://cdn.codechef.com/images/cc-logo.svg" alt="CodeChef" class="platform-logo">
+            CodeChef
+        </div>
         <div class="contest-subheader" id="cc-sub">Starters / Lunchtime</div>
         <div class="contest-info" id="cc-info">Loading...</div>
         <button class="btn-copy" onclick="copyText('cc-info')">Copy Contest Info</button>
     </div>
 
     <div id="ac" class="contest-card">
-        <div class="contest-header">AtCoder</div>
+        <div class="contest-header">
+            <img src="https://img.atcoder.jp/assets/atcoder.png" alt="AtCoder" class="platform-logo">
+            AtCoder
+        </div>
         <div class="contest-subheader" id="ac-sub">Regular / Beginner / Grand</div>
         <div class="contest-info" id="ac-info">Loading...</div>
         <button class="btn-copy" onclick="copyText('ac-info')">Copy Contest Info</button>
     </div>
 
     <div id="lc" class="contest-card">
-        <div class="contest-header">LeetCode</div>
+        <div class="contest-header">
+            <img src="https://leetcode.com/static/images/LeetCode_logo_rvs.png" alt="LeetCode" class="platform-logo">
+            LeetCode
+        </div>
         <div class="contest-subheader" id="lc-sub">Weekly / Biweekly Contest</div>
         <div class="contest-info" id="lc-info">Loading...</div>
         <button class="btn-copy" onclick="copyText('lc-info')">Copy Contest Info</button>
@@ -208,6 +297,16 @@
 
         function clearNotification() {
             document.getElementById('notification').innerText = '';
+        }
+
+        // Dark Mode Toggle Script
+        document.getElementById('toggle-dark').onclick = function () {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        };
+        // Load dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
         }
 
         // Initial fetch for all platforms
