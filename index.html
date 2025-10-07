@@ -73,6 +73,25 @@
             transform: translateY(-2px);
         }
 
+        .btn-share {
+            padding: 12px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            background-color: #1a73e8;
+            color: #fff;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn-share:hover {
+            background-color: #1558b0;
+            transform: translateY(-2px);
+        }
+
         .notification {
             color: #d9534f;
             font-weight: bold;
@@ -172,6 +191,7 @@
         <div class="contest-subheader" id="cf-sub">Round / Div info</div>
         <div class="contest-info" id="cf-info">Loading...</div>
         <button class="btn-copy" onclick="copyText('cf-info')">Copy Contest Info</button>
+        <button class="btn-share" onclick="shareContest('cf-info')">Share</button>
     </div>
 
     <div id="cc" class="contest-card">
@@ -182,6 +202,7 @@
         <div class="contest-subheader" id="cc-sub">Starters / Lunchtime</div>
         <div class="contest-info" id="cc-info">Loading...</div>
         <button class="btn-copy" onclick="copyText('cc-info')">Copy Contest Info</button>
+        <button class="btn-share" onclick="shareContest('cc-info')">Share</button>
     </div>
 
     <div id="ac" class="contest-card">
@@ -192,6 +213,7 @@
         <div class="contest-subheader" id="ac-sub">Regular / Beginner / Grand</div>
         <div class="contest-info" id="ac-info">Loading...</div>
         <button class="btn-copy" onclick="copyText('ac-info')">Copy Contest Info</button>
+        <button class="btn-share" onclick="shareContest('ac-info')">Share</button>
     </div>
 
     <div id="lc" class="contest-card">
@@ -202,6 +224,7 @@
         <div class="contest-subheader" id="lc-sub">Weekly / Biweekly Contest</div>
         <div class="contest-info" id="lc-info">Loading...</div>
         <button class="btn-copy" onclick="copyText('lc-info')">Copy Contest Info</button>
+        <button class="btn-share" onclick="shareContest('lc-info')">Share</button>
     </div>
 
     <script>
@@ -289,6 +312,18 @@
         function copyText(divId) {
             const text = document.getElementById(divId).innerText;
             navigator.clipboard.writeText(text).then(() => alert("Copied!")).catch(() => alert("Failed to copy"));
+        }
+
+        function shareContest(divId) {
+            const text = document.getElementById(divId).innerText;
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Upcoming Contest',
+                    text: text
+                }).catch(() => alert("Share cancelled or failed."));
+            } else {
+                alert("Web Share API not supported on this browser.");
+            }
         }
 
         function showNotification(msg) {
