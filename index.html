@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Programming Contests</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .contest-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            white-space: pre-line;
+            font-size: 16px;
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .contest-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #1a73e8;
+        }
+
+        .contest-subheader {
+            font-size: 16px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .contest-info {
+            white-space: pre-line;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-copy {
+            padding: 12px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            background-color: #34a853;
+            color: #fff;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-copy:hover {
+            background-color: #2c8e46;
+            transform: translateY(-2px);
+        }
+
+        .notification {
+            color: #d9534f;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Next Upcoming Contests</h1>
+    <div id="notification" class="notification"></div>
+
+    <div id="cf" class="contest-card">
+        <div class="contest-header">Codeforces</div>
+        <div class="contest-subheader" id="cf-sub">Round / Div info</div>
+        <div class="contest-info" id="cf-info">Loading...</div>
+        <button class="btn-copy" onclick="copyText('cf-info')">Copy Contest Info</button>
+    </div>
+
+    <div id="cc" class="contest-card">
+        <div class="contest-header">CodeChef</div>
+        <div class="contest-subheader" id="cc-sub">Starters / Lunchtime</div>
+        <div class="contest-info" id="cc-info">Loading...</div>
+        <button class="btn-copy" onclick="copyText('cc-info')">Copy Contest Info</button>
+    </div>
+
+    <div id="ac" class="contest-card">
+        <div class="contest-header">AtCoder</div>
+        <div class="contest-subheader" id="ac-sub">Regular / Beginner / Grand</div>
+        <div class="contest-info" id="ac-info">Loading...</div>
+        <button class="btn-copy" onclick="copyText('ac-info')">Copy Contest Info</button>
+    </div>
+
+    <div id="lc" class="contest-card">
+        <div class="contest-header">LeetCode</div>
+        <div class="contest-subheader" id="lc-sub">Weekly / Biweekly Contest</div>
+        <div class="contest-info" id="lc-info">Loading...</div>
+        <button class="btn-copy" onclick="copyText('lc-info')">Copy Contest Info</button>
+    </div>
+
+    <script>
+        const username = 'safin17_8';
+        const apiKey = '61dc8cb52e97f5778795d5f6e729e3b46b2103b8';
+        const platforms = { cf: 1, cc: 2, ac: 93, lc: 102 };
+
+        // Load saved data
+        let lastData = JSON.parse(localStorage.getItem('contestData')) || {
+            cf: null, cc: null, ac: null, lc: null
+        };
+        for (let key in lastData) {
+            if (lastData[key]) {
+                document.getElementById(key + '-info').innerText = lastData[key];
+            }
+        }
+
+        // Format date like sample
+        function formatDate(date) {
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const month = months[date.getMonth()];
+            const dayNum = date.getDate();
+            const year = date.getFullYear();
+            const weekday = days[date.getDay()];
+
+            let hours = date.getHours();
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            const hourStr = hours.toString().padStart(2, '0');
+
+            return `${month} ${dayNum}, ${year} (${weekday}) at ${hourStr}:${minutes} ${ampm} BST`;
+        }
+
+        async function fetchContest(platformKey, divId, subDivId) {
+            const resourceId = platforms[platformKey];
+            try {
+                const res = await fetch(`https://clist.by/api/v1/contest/?username=${username}&api_key=${apiKey}&resource__id=${resourceId}&start__gte=${new Date().toISOString()}&order_by=start`);
+                const data = await res.json();
+                if (!data.objects || data.objects.length === 0) {
+                    showNotification("No upcoming contests found. Try again later.");
+                    return;
+                }
+
+                const next = data.objects[0];
+                const startTime = new Date(next.start);
+                const formattedStart = formatDate(startTime);
+
+                let durationHours = Math.floor(next.duration / 3600);
+                let durationMinutes = Math.floor((next.duration % 3600) / 60);
+                let durationStr = '';
+                if (durationHours > 0) durationStr += durationHours + ' Hour' + (durationHours > 1 ? 's' : '');
+                if (durationMinutes > 0) durationStr += (durationStr ? ' & ' : '') + durationMinutes + ' Minute' + (durationMinutes > 1 ? 's' : '');
+                if (durationStr === '') durationStr = 'N/A';
+
+                const contestInfo = `🔰 ${next.event}\n\nStarting Time: ${formattedStart}\n\nDuration: ${durationStr}\n\nContest Link: ${next.href}`;
+
+                lastData[platformKey] = contestInfo;
+                document.getElementById(divId + '-info').innerText = contestInfo;
+
+                document.getElementById(subDivId).innerText = next.event.includes("Starters") ? "Starters Contest" :
+                    next.event.includes("Weekly") ? "Weekly Contest" :
+                        next.event.includes("Div") ? "Round / Div" :
+                            "Contest Info";
+
+                localStorage.setItem('contestData', JSON.stringify(lastData));
+                clearNotification();
+            } catch (err) {
+                console.error(err);
+                if (lastData[platformKey]) document.getElementById(divId + '-info').innerText = lastData[platformKey];
+                showNotification("Failed to fetch data. Wait some time and refresh.");
+            }
+        }
+
+        function copyText(divId) {
+            const text = document.getElementById(divId).innerText;
+            navigator.clipboard.writeText(text).then(() => alert("Copied!")).catch(() => alert("Failed to copy"));
+        }
+
+        function showNotification(msg) {
+            document.getElementById('notification').innerText = msg;
+        }
+
+        function clearNotification() {
+            document.getElementById('notification').innerText = '';
+        }
+
+        // Initial fetch
+        for (let key in platforms) fetchContest(key, key, key + '-sub');
+    </script>
+
+</body>
+
+</html>
