@@ -120,7 +120,7 @@
         const apiKey = '61dc8cb52e97f5778795d5f6e729e3b46b2103b8';
         const platforms = { cf: 1, cc: 2, ac: 93, lc: 102 };
 
-        // Load saved data
+        // Load saved data from localStorage
         let lastData = JSON.parse(localStorage.getItem('contestData')) || {
             cf: null, cc: null, ac: null, lc: null
         };
@@ -130,23 +130,33 @@
             }
         }
 
-        // Format date in BDT (Bangladesh Time)
-       function formatDate(utcDateStr) {
-            // Parse the UTC date string without local time conversion
-            const date = new Date(utcDateStr + "Z"); // The 'Z' ensures it's treated as UTC
+        // Format date in BDT (Bangladesh Time) in the requested format
+        function formatDate(utcDateStr) {
+            // Parse the UTC date string correctly
+            const date = new Date(utcDateStr); // Already UTC
 
-            const options = {
-                timeZone: 'Asia/Dhaka',  // Convert UTC to BDT
-                hour12: true,
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            return date.toLocaleString('en-GB', options) + ' BDT';
+            // Convert to BDT by adding 6 hours
+            const bdtTime = new Date(date.getTime() + 6 * 60 * 60 * 1000);
+
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday",
+                "Thursday", "Friday", "Saturday"];
+
+            const day = bdtTime.getDate().toString().padStart(2, '0');
+            const month = months[bdtTime.getMonth()];
+            const year = bdtTime.getFullYear();
+            const weekday = weekdays[bdtTime.getDay()];
+
+            let hours = bdtTime.getHours();
+            const minutes = bdtTime.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // 0 -> 12
+            const hourStr = hours.toString().padStart(2, '0');
+
+            return `${month} ${day}, ${year} (${weekday}) at ${hourStr}:${minutes} ${ampm} BDT`;
         }
-
 
         async function fetchContest(platformKey, divId, subDivId) {
             const resourceId = platforms[platformKey];
@@ -159,8 +169,7 @@
                 }
 
                 const next = data.objects[0];
-                const startTime = new Date(next.start);
-                const formattedStart = formatDate(startTime);
+                const formattedStart = formatDate(next.start);
 
                 let durationHours = Math.floor(next.duration / 3600);
                 let durationMinutes = Math.floor((next.duration % 3600) / 60);
@@ -201,7 +210,7 @@
             document.getElementById('notification').innerText = '';
         }
 
-        // Initial fetch
+        // Initial fetch for all platforms
         for (let key in platforms) fetchContest(key, key, key + '-sub');
     </script>
 
