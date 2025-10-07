@@ -130,23 +130,18 @@
             }
         }
 
-        // Format date like sample
+        // Format date in BDT (Bangladesh Time)
         function formatDate(date) {
-            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            const month = months[date.getMonth()];
-            const dayNum = date.getDate();
-            const year = date.getFullYear();
-            const weekday = days[date.getDay()];
-
-            let hours = date.getHours();
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12;
-            const hourStr = hours.toString().padStart(2, '0');
-
-            return `${month} ${dayNum}, ${year} (${weekday}) at ${hourStr}:${minutes} ${ampm} BST`;
+            const options = {
+                timeZone: 'Asia/Dhaka',  // Dhaka timezone (UTC+6)
+                hour12: true,
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return new Date(date).toLocaleString('en-GB', options) + ' BDT';
         }
 
         async function fetchContest(platformKey, divId, subDivId) {
